@@ -288,7 +288,7 @@ class FileHandler(object):
             except TypeError:
                 upload = BytesIO(data.encode())
 
-            self.s3.upload_fileobj(upload, Bucket=self.bucket, Key="/".join([self.path, key]))
+            self.s3.upload_fileobj(upload, self.bucket, "/".join([self.path, key]))
 
         else:
             path = os.path.join(self.path, key)
@@ -333,13 +333,8 @@ class FileHandler(object):
         filepath = "/".join([self.path, "{}.{}".format(key, format)])
 
         if self.use_s3:
-            try:
-                data = StringIO()
-
-            except TypeError:
-                data = BytesIO()
-
-            self.s3.download_fileobj(data, Bucket=self.bucket, Key=filepath)
+            data = BytesIO()
+            self.s3.download_fileobj(self.bucket, filepath, data)
             data = data.getvalue()
         else:
             if os.path.exists(filepath):
