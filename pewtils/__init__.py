@@ -25,6 +25,7 @@ from hashlib import md5
 from random import uniform
 from scandir import walk
 from unidecode import unidecode
+from pathlib import Path
 
 
 class classproperty(object):
@@ -889,7 +890,7 @@ def extract_attributes_from_folder_modules(
         if "__init__.py" not in os.listdir(test_path):
             break
         test_path, _ = os.path.split(test_path)
-    module_location = test_path
+    module_location = Path(test_path).as_posix()
 
     current_folder = folder_path.split("/")[-1]
     if not current_subdirs:
@@ -909,7 +910,7 @@ def extract_attributes_from_folder_modules(
                             re.sub(
                                 module_location,
                                 "",
-                                os.path.splitext(os.path.join(path, file))[0],
+                                Path(os.path.splitext(os.path.join(path, file))[0]).as_posix(),
                             ),
                         ).strip(".")
                         if module_name in sys.modules:
