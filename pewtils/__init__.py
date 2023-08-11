@@ -102,7 +102,10 @@ def is_not_null(val, empty_lists_are_null=False, custom_nulls=None):
     else:
         try:
             try:
-                good = val not in null_values
+                try:
+                    good = val not in null_values
+                except TypeError:
+                    good = True
                 if good:
                     try:
                         try:
@@ -115,7 +118,7 @@ def is_not_null(val, empty_lists_are_null=False, custom_nulls=None):
             except ValueError:
                 return val.any()
         except TypeError:
-            return not isinstance(val, None)
+            return val != None
 
 
 def is_null(val, empty_lists_are_null=False, custom_nulls=None):
@@ -1034,3 +1037,45 @@ class PrintExecutionTime(object):
             )
         else:
             self.stdout.write("{} seconds".format(self.end_time - self.start_time))
+
+
+def get_unique_overlap_sets(df, value_columns):
+
+    mapper = {}
+    for index, row in df.iterrows():
+        new_hash = None
+        new_hashes = []
+        for field in value_columns:
+            if is_not_null(row[field]):
+                hash_val = get_hash(row[field], hash_function="md5")
+                new_hashes.append(hash_val)
+                if not new_hash:
+                    new_hash = hash_val
+
+        existing_hash = None
+        for h in new_hashes:
+            if h in mapper.keys():
+                existing_hash = mapper[h]
+                break
+
+        if not existing_hash:
+            for h in new_hashes:
+                mapper[h] = new_hash
+        else:
+            for h in new_hashes:
+                mapper[h] = existing_hash
+
+    def get_tentative_hash(row):
+        for field in value_columns:
+            if is_not_null(row[field]):
+                return get_hash(row[field], hash_function="md5")
+        return None
+
+    df['tentative_hash'] = df.apply(get_tentative_hash, axis=1)
+    df['actual_hash'] = df['tentative_hash'].map(mapper)
+
+    sets = []
+    for _, grp in pairs.groupby("actual_hash"):
+        sets.append(set.union(*[set(grp[c]) for c in value_columns]))
+
+    return sets
