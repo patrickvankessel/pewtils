@@ -133,6 +133,7 @@ class IOTests(unittest.TestCase):
             h.write("temp", self.test_df, format="pkl")
             read = h.read("temp", format="pkl")
             self.assertEqual(repr(self.test_df), repr(read))
+            h.clear_file("temp", format="pkl")
 
     def test_filehandler_read_write_csv(self):
         from pewtils.io import FileHandler
@@ -153,6 +154,7 @@ class IOTests(unittest.TestCase):
             h.write("temp", self.test_df, format="csv")
             read = h.read("temp", format="csv")
             self.assertEqual(repr(self.test_df), repr(read))
+            h.clear_file("temp", format="csv")
 
     def test_filehandler_read_write_txt(self):
         from pewtils.io import FileHandler
@@ -173,6 +175,7 @@ class IOTests(unittest.TestCase):
             h.write("temp", "test", format="txt")
             read = h.read("temp", format="txt")
             self.assertEqual(read, "test")
+            h.clear_file("temp", format="txt")
 
     def test_filehandler_read_write_tab(self):
         from pewtils.io import FileHandler
@@ -193,6 +196,7 @@ class IOTests(unittest.TestCase):
             h.write("temp", self.test_df, format="tab")
             read = h.read("temp", format="tab")
             self.assertEqual(repr(self.test_df), repr(read))
+            h.clear_file("temp", format="tab")
 
     def test_filehandler_read_write_xlsx(self):
         from pewtils.io import FileHandler
@@ -213,6 +217,7 @@ class IOTests(unittest.TestCase):
             h.write("temp", self.test_df, format="xlsx")
             read = h.read("temp", format="xlsx")
             self.assertEqual(repr(self.test_df), repr(read))
+            h.clear_file("temp", format="xlsx")
 
     def test_filehandler_read_write_xls(self):
         from pewtils.io import FileHandler
@@ -233,6 +238,7 @@ class IOTests(unittest.TestCase):
             h.write("temp", self.test_df, format="xls")
             read = h.read("temp", format="xls")
             self.assertEqual(repr(self.test_df), repr(read))
+            h.clear_file("temp", format="xls")
 
     def test_filehandler_read_write_dta(self):
         from pewtils.io import FileHandler
@@ -255,6 +261,7 @@ class IOTests(unittest.TestCase):
             read = h.read("temp", format="dta")
             del read["index"]
             self.assertEqual(repr(self.test_df), repr(read))
+            h.clear_file("temp", format="dta")
 
     def test_filehandler_read_write_json(self):
         from pewtils.io import FileHandler
@@ -275,6 +282,7 @@ class IOTests(unittest.TestCase):
             h.write("temp", self.test_json, format="json")
             read = h.read("temp", format="json")
             self.assertEqual(repr(self.test_json), repr(dict(read)))
+            h.clear_file("temp", format="json")
 
     def test_filehandler_read_write_bzip(self):
         from pewtils.io import FileHandler
