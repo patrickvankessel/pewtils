@@ -445,4 +445,7 @@ class FileHandler(object):
                 if isinstance(data, bytes):
                     data = data.decode()
 
+        if hasattr(data, "columns") and "Unnamed: 0" in data.columns:
+            del data["Unnamed: 0"]
+
         return data
