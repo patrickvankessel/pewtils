@@ -313,8 +313,7 @@ class IOTests(unittest.TestCase):
 
     def test_filehandler_read_write_bzip_s3(self):
         from pewtils.io import FileHandler
-        from dotenv import load_dotenv
-        load_dotenv()
+
         if os.environ.get("S3_BUCKET"):
             h = FileHandler("tests/files", use_s3=True)
             for format in ["csv", "pkl"]:
