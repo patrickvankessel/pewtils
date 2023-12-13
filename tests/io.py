@@ -335,5 +335,7 @@ class IOTests(unittest.TestCase):
             h = FileHandler("tests/files", use_s3=True)
             for file in h.iterate_path():
                 if "." in file:
-                    filename, format = file.split(".")
+                    split = file.split(".")
+                    filename = split[0]
+                    format = ".".join(filename[1:])
                     h.clear_file(filename, format=format)
