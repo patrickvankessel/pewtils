@@ -61,7 +61,19 @@ class IOTests(unittest.TestCase):
         self.assertEqual(len(files), 0)
         os.rmdir("tests/files/temp")
 
-    def test_clear_file(self):
+    def test_filehandler_clear_folder_s3(self):
+        from pewtils.io import FileHandler
+
+        if os.environ.get("S3_BUCKET"):
+            h = FileHandler("tests/files/temp", use_s3=True)
+            h.write("temp", self.test_df, format="csv")
+            h.clear_folder()
+            files = []
+            for file in h.iterate_path():
+                files.append(file)
+            self.assertEqual(len(files), 0)
+
+    def test_filehandler_clear_file(self):
         from pewtils.io import FileHandler
 
         h = FileHandler("tests/files/temp", use_s3=False)
