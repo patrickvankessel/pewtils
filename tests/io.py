@@ -140,7 +140,6 @@ class IOTests(unittest.TestCase):
         h = FileHandler("tests/files", use_s3=False)
         h.write("temp", self.test_df, format="csv")
         read = h.read("temp", format="csv")
-        del read["Unnamed: 0"]
         import os
 
         os.unlink("tests/files/temp.csv")
@@ -153,7 +152,6 @@ class IOTests(unittest.TestCase):
             h = FileHandler("tests/files", use_s3=True)
             h.write("temp", self.test_df, format="csv")
             read = h.read("temp", format="csv")
-            del read["Unnamed: 0"]
             self.assertEqual(repr(self.test_df), repr(read))
 
     def test_filehandler_read_write_txt(self):
@@ -182,7 +180,6 @@ class IOTests(unittest.TestCase):
         h = FileHandler("tests/files", use_s3=False)
         h.write("temp", self.test_df, format="tab")
         read = h.read("temp", format="tab")
-        del read["Unnamed: 0"]
         import os
 
         os.unlink("tests/files/temp.tab")
@@ -195,7 +192,6 @@ class IOTests(unittest.TestCase):
             h = FileHandler("tests/files", use_s3=True)
             h.write("temp", self.test_df, format="tab")
             read = h.read("temp", format="tab")
-            del read["Unnamed: 0"]
             self.assertEqual(repr(self.test_df), repr(read))
 
     def test_filehandler_read_write_xlsx(self):
@@ -204,8 +200,6 @@ class IOTests(unittest.TestCase):
         h = FileHandler("tests/files", use_s3=False)
         h.write("temp", self.test_df, format="xlsx")
         read = h.read("temp", format="xlsx")
-        if "Unnamed: 0" in read.columns:
-            del read["Unnamed: 0"]
         import os
 
         os.unlink("tests/files/temp.xlsx")
@@ -218,8 +212,6 @@ class IOTests(unittest.TestCase):
             h = FileHandler("tests/files", use_s3=True)
             h.write("temp", self.test_df, format="xlsx")
             read = h.read("temp", format="xlsx")
-            if "Unnamed: 0" in read.columns:
-                del read["Unnamed: 0"]
             self.assertEqual(repr(self.test_df), repr(read))
 
     def test_filehandler_read_write_xls(self):
@@ -228,8 +220,6 @@ class IOTests(unittest.TestCase):
         h = FileHandler("tests/files", use_s3=False)
         h.write("temp", self.test_df, format="xls")
         read = h.read("temp", format="xls")
-        if "Unnamed: 0" in read.columns:
-            del read["Unnamed: 0"]
         import os
 
         os.unlink("tests/files/temp.xls")
@@ -242,8 +232,6 @@ class IOTests(unittest.TestCase):
             h = FileHandler("tests/files", use_s3=True)
             h.write("temp", self.test_df, format="xls")
             read = h.read("temp", format="xls")
-            if "Unnamed: 0" in read.columns:
-                del read["Unnamed: 0"]
             self.assertEqual(repr(self.test_df), repr(read))
 
     def test_filehandler_read_write_dta(self):
