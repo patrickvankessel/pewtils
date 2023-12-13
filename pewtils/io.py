@@ -7,6 +7,7 @@ import datetime
 import hashlib
 import json
 import os
+import bz2
 import pandas as pd
 import pickle as pickle
 import time
@@ -132,7 +133,7 @@ class FileHandler(object):
             for f in scandir(self.path):
                 os.unlink(os.path.join(self.path, f.name))
 
-    def clear_file(self, key, format="pkl", hash_key=False):
+    def clear_file(self, key, format="pkl", hash_key=False, bzip=False):
         """
         Deletes a specific file.
 
@@ -166,10 +167,14 @@ class FileHandler(object):
 
         if self.use_s3:
             filepath = "/".join([self.path, "{}.{}".format(key, format)])
+            if bzip:
+                filepath += ".bzip"
             key = self.s3.delete_object(Bucket=self.bucket, Key=filepath)
 
         else:
             key += ".{}".format(format)
+            if bzip:
+                key += ".bzip"
             path = os.path.join(self.path, key)
             os.unlink(path)
 
@@ -205,7 +210,7 @@ class FileHandler(object):
             return hashlib.sha224(str(key).encode("utf8")).hexdigest()
 
     def write(
-        self, key, data, format="pkl", hash_key=False, add_timestamp=False, **io_kwargs
+        self, key, data, format="pkl", hash_key=False, add_timestamp=False, bzip=False, **io_kwargs
     ):
 
         """
@@ -223,6 +228,8 @@ class FileHandler(object):
         :type hash_key: bool
         :param add_timestamp: Optionally add a timestamp to the filename
         :type add_timestamp: bool
+        :param bzip: Whether or not to compress the output with bz2 (default is False)
+        :type bzip: bool
         :param io_kwargs: Additional parameters to pass along to the Pandas save function, if applicable
         :return: None
 
@@ -281,18 +288,24 @@ class FileHandler(object):
 
         key += ".{}".format(format)
 
+        if bzip:
+            key += ".bzip"
+
         if self.use_s3:
             try:
                 upload = BytesIO(data)
 
             except TypeError:
                 upload = BytesIO(data.encode())
-
+            if bzip:
+                upload = BytesIO(bz2.compress(upload.getvalue()))
             self.s3.upload_fileobj(upload, self.bucket, "/".join([self.path, key]))
 
         else:
             path = os.path.join(self.path, key)
             if os.path.exists(self.path):
+                if bzip:
+                    data = bz2.compress(data)
                 try:
                     with closing(open(path, "w")) as output:
                         output.write(data)
@@ -300,7 +313,7 @@ class FileHandler(object):
                     with closing(open(path, "wb")) as output:
                         output.write(data)
 
-    def read(self, key, format="pkl", hash_key=False, **io_kwargs):
+    def read(self, key, format="pkl", hash_key=False, bzip=False, **io_kwargs):
 
         """
         Reads a file from the directory or S3 path, returning its contents.
@@ -311,6 +324,8 @@ class FileHandler(object):
         :type format: str
         :param hash_key: Whether the key should be hashed prior to looking for and retrieving the file.
         :type hash_key: bool
+        :param bzip: Whether or not to decompress the file using bz2 (default is False)
+        :type bzip: bool
         :param io_kwargs: Optional arguments to be passed to the specific load function (dependent on file format)
         :return: The file contents, in the requested format
 
@@ -331,21 +346,32 @@ class FileHandler(object):
 
         data = None
         filepath = "/".join([self.path, "{}.{}".format(key, format)])
+        if bzip:
+            filepath += ".bzip"
 
         if self.use_s3:
             data = BytesIO()
             self.s3.download_fileobj(self.bucket, filepath, data)
-            data = data.getvalue()
+            if bzip:
+                data = bz2.decompress(data.getvalue())
+            else:
+                data = data.getvalue()
         else:
             if os.path.exists(filepath):
-                try:
-                    with closing(open(filepath, "r")) as infile:
-                        data = infile.read()
+                use_bytes = bool(bzip)
+                if not use_bytes:
+                    try:
+                        with closing(open(filepath, "r")) as infile:
+                            data = infile.read()
+                    except:
+                        use_bytes = True
 
-                except:
+                if use_bytes:
                     # TODO: handle this exception more explicitly
                     with closing(open(filepath, "rb")) as infile:
                         data = infile.read()
+                    if bzip and is_not_null(data):
+                        data = bz2.decompress(data)
 
         if is_not_null(data):
             if format == "pkl":
