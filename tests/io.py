@@ -288,6 +288,33 @@ class IOTests(unittest.TestCase):
             read = h.read("temp", format="json")
             self.assertEqual(repr(self.test_json), repr(dict(read)))
 
+    def test_filehandler_read_write_bzip(self):
+        from pewtils.io import FileHandler
+
+        h = FileHandler("tests/files", use_s3=False)
+        for format in ["csv", "pkl"]:
+            h.write("temp", self.test_df, format=format, bzip=True)
+            read = h.read("temp", format=format, bzip=True)
+            import os
+
+            os.unlink(f"tests/files/temp.{format}.bzip")
+            if repr(self.test_df) != repr(read):
+                import pdb
+                pdb.set_trace()
+            self.assertEqual(repr(self.test_df), repr(read))
+
+    def test_filehandler_read_write_bzip_s3(self):
+        from pewtils.io import FileHandler
+        from dotenv import load_dotenv
+        load_dotenv()
+        if os.environ.get("S3_BUCKET"):
+            h = FileHandler("tests/files", use_s3=True)
+            for format in ["csv", "pkl"]:
+                h.write("temp", self.test_df, format=format, bzip=True)
+                read = h.read("temp", format=format, bzip=True)
+                self.assertEqual(repr(self.test_df), repr(read))
+                h.clear_file("temp", format=format, bzip=True)
+
     def tearDown(self):
 
         import os
