@@ -161,14 +161,16 @@ class BaseTests(unittest.TestCase):
                 "49c808104092202004009004800200084a0240a0c09040a1113a04a821210016",
             ),
             ("test_string", "md5", "3474851a3410906697ec77337df7aae4"),
-            ("test_string", "ssdeep", "3:HI2:Hl"),
+            # ("test_string", "ssdeep", "3:HI2:Hl"),
+            ("test_string", "ppdeep", "3:HI2:Hl"),
             (
                 u"\u5317\u4EB0",
                 "nilsimsa",
                 "0100000044110004290804002820001002844001200601000101002800394081",
             ),
             (u"\u5317\u4EB0", "md5", "3261ad50fccf7ced43d944bbfd2acb5c"),
-            (u"\u5317\u4EB0", "ssdeep", "3:I2n:l"),
+            # (u"\u5317\u4EB0", "ssdeep", "3:I2n:l"),
+            (u"\u5317\u4EB0", "ppdeep", "3:I2n:l"),
         ]:
             hash = get_hash(text, hash_function=method)
             self.assertEqual(hash, expected_value)

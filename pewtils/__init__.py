@@ -5,6 +5,7 @@ import json
 import imp
 import multiprocessing
 import os
+import ppdeep
 import re
 import signal
 import sys
@@ -221,7 +222,7 @@ def decode_text(text, throw_loud_fail=False):
     return output_text
 
 
-def get_hash(text, hash_function="ssdeep"):
+def get_hash(text, hash_function="ppdeep"):
 
     """
     Generates hashed text using one of several available hashing functions.
@@ -236,7 +237,7 @@ def get_hash(text, hash_function="ssdeep"):
 
     .. note:: The string will be passed through :py:func:`pewtils.decode_text` and the returned value will be used \
     instead of the original value if it runs successfully, in order to ensure consistent hashing in both Python 2 and \
-    3. By default the function uses the :py:mod:`ssdeep` algorithm, which generates context-sensitive hashes that are \
+    3. By default the function uses the :py:mod:`ppdeep` algorithm, which generates context-sensitive hashes that are \
     useful for computing document similarities at scale.
 
     .. note:: Using `hash_function='ssdeep'` requires the :py:mod:`ssdeep` library, which is not installed by default \
@@ -262,7 +263,7 @@ def get_hash(text, hash_function="ssdeep"):
         hashed = Nilsimsa(text).hexdigest()
     elif hash_function == "md5":
         hashed = md5(text).hexdigest()
-    else:
+    elif hash_function == "ssdeep":
         try:
             import ssdeep
         except ImportError:
@@ -274,6 +275,8 @@ def get_hash(text, hash_function="ssdeep"):
             """
             )
         hashed = ssdeep.hash(text)
+    else:
+        hashed = ppdeep.hash(text)
 
     return hashed
 
